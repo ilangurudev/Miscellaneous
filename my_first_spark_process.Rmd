@@ -1,0 +1,43 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(tidyverse)
+library(sparklyr)
+library(leaflet)
+sc <- spark_connect(master = "local")
+```
+
+```{r}
+spark_read_csv(sc, "mta_trips", "data/mta_trips.csv")
+```
+
+```{r}
+mta_trips <- tbl(sc, "mta_trips")
+mta_trips %>% 
+  filter(line_name == "R1") %>% 
+  collect() %>% 
+  ggplot(aes(new_entries, new_exits)) +
+  geom_point(alpha = 0.5)
+
+```
+
+```{r}
+tokenized <- 
+  mta_trips %>% 
+  ft_regex_tokenizer("station", "station_tokenized", pattern = rebus::SPACE) %>% 
+  compute("int")
+
+tbl(sc, "int") %>% 
+  select(station_tokenized) %>% 
+  collect() %>% 
+  mutate(station_tokenized2 = map(station_tokenized, as.character))
+```
+
+```{r}
+spark_disconnect(sc)
+```

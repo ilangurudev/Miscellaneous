@@ -1,0 +1,70 @@
+---
+title: "tidyeval"
+author: "Gurudev Ilangovan"
+date: "March 31, 2018"
+output: html_document
+---
+```{r}
+library(tidyverse)
+```
+
+
+# Without using functions
+
+##select is a confusing verb
+```{r}
+diamonds %>% 
+  select(carat, cut)
+
+# for select using strings works 
+diamonds %>% 
+  select("carat", "cut")
+
+# notice the different error messages
+diamonds %>% 
+  select(a)
+
+diamonds %>% 
+  select("a")
+```
+
+select quotes (captures) the input by default. That's why the following won't work:
+```{r}
+var1 <- "carat"
+
+diamonds %>% 
+  select(var1)
+
+```
+
+
+
+1. quo basically quotes whatever is inside its brackets
+
+
+
+
+```{r}
+(var1 <- quo(carat))
+(var2 <- quo("cut"))
+
+# here even a quoted string works because we select works with strings 
+diamonds %>% 
+  select(!!var1, !!var2)
+
+var <- quo(carat)
+
+diamonds %>% 
+  select(!!var)
+
+
+var <- quo("cut")
+
+diamonds %>% 
+  select(!!var)
+
+diamonds %>% 
+  group_by(!!var)
+
+```
+
